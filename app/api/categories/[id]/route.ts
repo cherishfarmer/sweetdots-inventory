@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
-import { requireAdmin } from '@/lib/auth';
+import { query } from '../../../../lib/db';
+import { requireAdmin } from '../../../../lib/auth';
 
 // PUT update category
 export async function PUT(

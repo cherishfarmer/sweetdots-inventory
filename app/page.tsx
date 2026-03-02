@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,7 +33,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-4"
             style={{ backgroundColor: '#f97316' }}>
-            <span className="text-5xl">🍩</span>
+            <span className="text-5xl">🧋</span>
           </div>
           <h1 className="text-4xl font-bold mb-2" style={{ 
             fontFamily: 'Georgia, serif',

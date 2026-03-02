@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
-import { requireAuth, requireAdmin } from '@/lib/auth';
+import { query } from '../../../lib/db';
+import { requireAuth, requireAdmin } from '../../../lib/auth';
 
 // GET all categories with items
 export async function GET(request: NextRequest) {

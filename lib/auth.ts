@@ -34,15 +34,15 @@ export function generateToken(user: User): string {
       email: user.email,
       role: user.role,
     },
-    JWT_SECRET,
-    { expiresIn: process.env.SESSION_DURATION || '7d' }
+    JWT_SECRET as string,
+    { expiresIn: process.env.SESSION_DURATION || '7d' } as jwt.SignOptions
   );
 }
 
 // Verify JWT token
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, JWT_SECRET as string) as TokenPayload;
   } catch (error) {
     return null;
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 interface Item {
@@ -273,7 +273,7 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <span className="text-4xl">🍩</span>
+              <span className="text-4xl">🧋</span>
               <div>
                 <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>
                   Sweet Dots

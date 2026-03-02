@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { query } from '../../../../lib/db';
+import { requireAuth } from '../../../../lib/auth';
 
 // GET submission details with snapshots
 export async function GET(

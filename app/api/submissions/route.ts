@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
-import { sendInventoryReport } from '@/lib/email';
+import { query } from '../../../lib/db';
+import { requireAuth } from '../../../lib/auth';
+import { sendInventoryReport } from '../../../lib/email';
 
 // GET all submissions with pagination
 export async function GET(request: NextRequest) {
