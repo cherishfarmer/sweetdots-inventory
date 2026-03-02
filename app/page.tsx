@@ -31,17 +31,19 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-4"
-            style={{ backgroundColor: '#f97316' }}>
-            <span className="text-5xl">🧋</span>
+          <div className="bg-orange-500 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4">
+            <img
+                src="/sweetdotsfavicon-removebg-preview.png"
+                alt="Sweet Dots Logo"
+                className="w-30 h-30 object-cover"
+            />
           </div>
-          <h1 className="text-4xl font-bold mb-2" style={{ 
-            fontFamily: 'Georgia, serif',
+          <h1 className="text-4xl font-bold mb-2" style={{
             color: '#9a3412'
           }}>
             Sweet Dots
           </h1>
-          <p className="text-lg" style={{ color: '#c2410c' }}>
+          <p className="text-lg" style={{color: '#c2410c'}}>
             Inventory Management
           </p>
         </div>
@@ -104,11 +106,6 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="mt-6 text-center text-sm" style={{ color: '#9a3412' }}>
-            <p>Demo credentials:</p>
-            <p className="font-mono mt-1">admin@sweetdots.com / admin123</p>
-          </div>
         </div>
       </div>
     </div>

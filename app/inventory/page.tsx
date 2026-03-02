@@ -237,12 +237,18 @@ export default function InventoryPage() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <span className="text-4xl">🧋</span>
+                <div className="bg-orange-500 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <img
+                      src="/sweetdotsfavicon-removebg-preview.png"
+                      alt="Sweet Dots Logo"
+                      className="w-30 h-30 object-cover"
+                  />
+                </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>
+                  <h1 className="text-2xl font-bold text-white">
                     Sweet Dots
                   </h1>
-                  <p className="text-orange-100 text-sm">Update Inventory</p>
+                  <p className="text-orange-100 text-sm">Admin Dashboard</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">

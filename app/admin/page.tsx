@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 interface Item {
@@ -26,7 +26,8 @@ export default function AdminPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'items' | 'categories'>('items');
-  
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Form states
   const [showItemForm, setShowItemForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -249,301 +250,405 @@ export default function AdminPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fff7ed' }}>
-        <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">🧋</div>
-          <p style={{ color: '#9a3412' }} className="text-lg">Loading...</p>
+        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fff7ed' }}>
+          <div className="text-center">
+            <div className="animate-spin text-6xl mb-4">🧋</div>
+            <p style={{ color: '#9a3412' }} className="text-lg">Loading...</p>
+          </div>
         </div>
-      </div>
     );
   }
 
-  const allItems: Item[] = categories.flatMap(cat => 
-    (cat.items || []).map(item => ({
-      ...item,
-      categoryId: cat.id,
-      categoryName: cat.name,
-    }))
+  const allItems: Item[] = categories.flatMap(cat =>
+      (cat.items || []).map(item => ({
+        ...item,
+        categoryId: cat.id,
+        categoryName: cat.name,
+      }))
   );
 
+  // Filter items based on search query
+  const filteredItems = searchQuery.trim()
+      ? allItems.filter(item =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      : allItems;
+
+  // Filter categories based on search query
+  const filteredCategories = searchQuery.trim()
+      ? categories.filter(cat =>
+          cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      : categories;
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#fafafa' }}>
-      {/* Header */}
-      <div className="sticky top-0 z-50 shadow-lg" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <span className="text-4xl">🧋</span>
-              <div>
-                <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>
-                  Sweet Dots
-                </h1>
-                <p className="text-orange-100 text-sm">Admin Dashboard</p>
+      <div className="min-h-screen" style={{ backgroundColor: '#fafafa' }}>
+        {/* Header */}
+        <div className="sticky top-0 z-50 shadow-lg" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-orange-500 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <img
+                      src="/sweetdotsfavicon-removebg-preview.png"
+                      alt="Sweet Dots Logo"
+                      className="w-30 h-30 object-cover"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">
+                    Sweet Dots
+                  </h1>
+                  <p className="text-orange-100 text-sm">Admin Dashboard</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+              <button
+                    onClick={() => router.push('/inventory')}
+                    className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
+                >
+                  ✏️ Update
+                </button>
+                <button
+                    onClick={() => router.push('/history')}
+                    className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
+                >
+                  📊 History
+                </button>
+                <button
+                    onClick={logout}
+                    className="px-6 py-3 bg-orange-800 text-white rounded-lg font-semibold hover:bg-orange-900"
+                >
+                  Logout
+                </button>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => router.push('/inventory')}
-                className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
-              >
-                ✏️ Update
-              </button>
-              <button
-                onClick={() => router.push('/history')}
-                className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
-              >
-                📊 History
-              </button>
-              <button
-                onClick={logout}
-                className="px-6 py-3 bg-orange-800 text-white rounded-lg font-semibold hover:bg-orange-900"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Tabs */}
-        <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setActiveTab('items')}
-              className={`py-4 rounded-xl font-bold text-lg transition-all ${
-                activeTab === 'items'
-                  ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg'
-                  : 'bg-orange-50 text-orange-600'
-              }`}
-            >
-              📦 Manage Items
-            </button>
-            <button
-              onClick={() => setActiveTab('categories')}
-              className={`py-4 rounded-xl font-bold text-lg transition-all ${
-                activeTab === 'categories'
-                  ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg'
-                  : 'bg-orange-50 text-orange-600'
-              }`}
-            >
-              🏷️ Manage Categories
-            </button>
           </div>
         </div>
 
-        {/* Items Tab */}
-        {activeTab === 'items' && (
-          <>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold" style={{ color: '#9a3412' }}>
-                Items ({allItems.length})
-              </h2>
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Tabs */}
+          <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
+            <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => {
-                  setShowItemForm(true);
-                  setEditingItem(null);
-                  setItemForm({ name: '', categoryId: '', parLevel: 0 });
-                }}
-                className="px-8 py-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                  onClick={() => {
+                    setActiveTab('items');
+                    setSearchQuery(''); // Clear search when switching
+                  }}
+                  className={`py-4 rounded-xl font-bold text-lg transition-all ${
+                      activeTab === 'items'
+                          ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg'
+                          : 'bg-orange-50 text-orange-600'
+                  }`}
               >
-                + Add Item
+                📦 Manage Items
+              </button>
+              <button
+                  onClick={() => {
+                    setActiveTab('categories');
+                    setSearchQuery(''); // Clear search when switching
+                  }}
+                  className={`py-4 rounded-xl font-bold text-lg transition-all ${
+                      activeTab === 'categories'
+                          ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg'
+                          : 'bg-orange-50 text-orange-600'
+                  }`}
+              >
+                🏷️ Manage Categories
               </button>
             </div>
+          </div>
 
-            {/* Item Form */}
-            {(showItemForm || editingItem) && (
-              <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                <h3 className="text-2xl font-bold mb-4" style={{ color: '#9a3412' }}>
-                  {editingItem ? 'Edit Item' : 'Create New Item'}
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
-                      Item Name
-                    </label>
+          {/* Items Tab */}
+          {activeTab === 'items' && (
+              <>
+                {/* Search Bar */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                  <div className="relative">
+                    <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                     <input
-                      type="text"
-                      value={itemForm.name}
-                      onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search items by name or category..."
+                        className="w-full pl-12 pr-12 py-4 rounded-xl border-2 border-orange-200 bg-orange-50 text-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
                     />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-orange-400 hover:text-orange-600"
+                        >
+                          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                    )}
                   </div>
+                  {searchQuery && (
+                      <p className="mt-2 text-sm text-orange-600">
+                        Found {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''}
+                      </p>
+                  )}
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
-                      Category
-                    </label>
-                    <select
-                      value={itemForm.categoryId}
-                      onChange={(e) => setItemForm({ ...itemForm, categoryId: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
-                      Par Level
-                    </label>
-                    <input
-                      type="number"
-                      value={itemForm.parLevel}
-                      onChange={(e) => setItemForm({ ...itemForm, parLevel: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
-                      min="0"
-                    />
-                  </div>
-
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={editingItem ? handleUpdateItem : handleCreateItem}
-                      className="flex-1 py-3 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg font-bold hover:shadow-lg transition-all"
-                    >
-                      {editingItem ? 'Update' : 'Create'}
-                    </button>
-                    <button
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-3xl font-bold" style={{ color: '#9a3412' }}>
+                    Items ({filteredItems.length})
+                  </h2>
+                  <button
                       onClick={() => {
-                        setShowItemForm(false);
+                        setShowItemForm(true);
                         setEditingItem(null);
                         setItemForm({ name: '', categoryId: '', parLevel: 0 });
                       }}
-                      className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                      className="px-8 py-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                  >
+                    + Add Item
+                  </button>
                 </div>
-              </div>
-            )}
 
-            {/* Items List */}
-            <div className="space-y-3">
-              {allItems.map(item => (
-                <div key={item.id} className="bg-white rounded-xl shadow-lg p-6 flex justify-between items-center">
-                  <div className="flex-1">
-                    <h4 className="text-xl font-bold" style={{ color: '#9a3412' }}>{item.name}</h4>
-                    <p className="text-orange-600">
-                      {item.categoryName} • Par Level: {item.parLevel} • Current: {item.currentQuantity}
-                    </p>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => startEditItem(item)}
-                      className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteItem(item.id)}
-                      className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                {/* Item Form */}
+                {(showItemForm || editingItem) && (
+                    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                      <h3 className="text-2xl font-bold mb-4" style={{ color: '#9a3412' }}>
+                        {editingItem ? 'Edit Item' : 'Create New Item'}
+                      </h3>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
+                            Item Name
+                          </label>
+                          <input
+                              type="text"
+                              value={itemForm.name}
+                              onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
+                            Category
+                          </label>
+                          <select
+                              value={itemForm.categoryId}
+                              onChange={(e) => setItemForm({ ...itemForm, categoryId: e.target.value })}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
+                          >
+                            <option value="">Select Category</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
+                            Par Level
+                          </label>
+                          <input
+                              type="number"
+                              value={itemForm.parLevel}
+                              onChange={(e) => setItemForm({ ...itemForm, parLevel: parseInt(e.target.value) || 0 })}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
+                              min="0"
+                          />
+                        </div>
+
+                        <div className="flex space-x-3">
+                          <button
+                              onClick={editingItem ? handleUpdateItem : handleCreateItem}
+                              className="flex-1 py-3 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg font-bold hover:shadow-lg transition-all"
+                          >
+                            {editingItem ? 'Update' : 'Create'}
+                          </button>
+                          <button
+                              onClick={() => {
+                                setShowItemForm(false);
+                                setEditingItem(null);
+                                setItemForm({ name: '', categoryId: '', parLevel: 0 });
+                              }}
+                              className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                )}
+
+                {/* Items List */}
+                <div className="space-y-3">
+                  {filteredItems.length === 0 ? (
+                      <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+                        <p className="text-xl text-orange-600">
+                          {searchQuery ? `No items found matching "${searchQuery}"` : 'No items yet'}
+                        </p>
+                      </div>
+                  ) : (
+                      filteredItems.map(item => (
+                          <div key={item.id} className="bg-white rounded-xl shadow-lg p-6 flex justify-between items-center">
+                            <div className="flex-1">
+                              <h4 className="text-xl font-bold" style={{ color: '#9a3412' }}>{item.name}</h4>
+                              <p className="text-orange-600">
+                                {item.categoryName} • Par Level: {item.parLevel} • Current: {item.currentQuantity}
+                              </p>
+                            </div>
+                            <div className="flex space-x-3">
+                              <button
+                                  onClick={() => startEditItem(item)}
+                                  className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                  onClick={() => handleDeleteItem(item.id)}
+                                  className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                      ))
+                  )}
                 </div>
-              ))}
-            </div>
-          </>
-        )}
+              </>
+          )}
 
-        {/* Categories Tab */}
-        {activeTab === 'categories' && (
-          <>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold" style={{ color: '#9a3412' }}>
-                Categories ({categories.length})
-              </h2>
-              <button
-                onClick={() => {
-                  setShowCategoryForm(true);
-                  setEditingCategory(null);
-                  setCategoryForm({ name: '' });
-                }}
-                className="px-8 py-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-              >
-                + Add Category
-              </button>
-            </div>
-
-            {/* Category Form */}
-            {(showCategoryForm || editingCategory) && (
-              <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                <h3 className="text-2xl font-bold mb-4" style={{ color: '#9a3412' }}>
-                  {editingCategory ? 'Edit Category' : 'Create New Category'}
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
-                      Category Name
-                    </label>
+          {/* Categories Tab */}
+          {activeTab === 'categories' && (
+              <>
+                {/* Search Bar */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                  <div className="relative">
+                    <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                     <input
-                      type="text"
-                      value={categoryForm.name}
-                      onChange={(e) => setCategoryForm({ name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search categories..."
+                        className="w-full pl-12 pr-12 py-4 rounded-xl border-2 border-orange-200 bg-orange-50 text-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
                     />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-orange-400 hover:text-orange-600"
+                        >
+                          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                    )}
                   </div>
+                  {searchQuery && (
+                      <p className="mt-2 text-sm text-orange-600">
+                        Found {filteredCategories.length} categor{filteredCategories.length !== 1 ? 'ies' : 'y'}
+                      </p>
+                  )}
+                </div>
 
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={editingCategory ? handleUpdateCategory : handleCreateCategory}
-                      className="flex-1 py-3 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg font-bold hover:shadow-lg transition-all"
-                    >
-                      {editingCategory ? 'Update' : 'Create'}
-                    </button>
-                    <button
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-3xl font-bold" style={{ color: '#9a3412' }}>
+                    Categories ({filteredCategories.length})
+                  </h2>
+                  <button
                       onClick={() => {
-                        setShowCategoryForm(false);
+                        setShowCategoryForm(true);
                         setEditingCategory(null);
                         setCategoryForm({ name: '' });
                       }}
-                      className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                      className="px-8 py-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                  >
+                    + Add Category
+                  </button>
                 </div>
-              </div>
-            )}
 
-            {/* Categories List */}
-            <div className="space-y-3">
-              {categories.map(category => (
-                <div key={category.id} className="bg-white rounded-xl shadow-lg p-6 flex justify-between items-center">
-                  <div className="flex-1">
-                    <h4 className="text-xl font-bold" style={{ color: '#9a3412' }}>{category.name}</h4>
-                    <p className="text-orange-600">
-                      {(category.items || []).length} items
-                    </p>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => startEditCategory(category)}
-                      className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
-                      disabled={(category.items || []).length > 0}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                {/* Category Form */}
+                {(showCategoryForm || editingCategory) && (
+                    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                      <h3 className="text-2xl font-bold mb-4" style={{ color: '#9a3412' }}>
+                        {editingCategory ? 'Edit Category' : 'Create New Category'}
+                      </h3>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold mb-2" style={{ color: '#9a3412' }}>
+                            Category Name
+                          </label>
+                          <input
+                              type="text"
+                              value={categoryForm.name}
+                              onChange={(e) => setCategoryForm({ name: e.target.value })}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 bg-orange-50"
+                          />
+                        </div>
+
+                        <div className="flex space-x-3">
+                          <button
+                              onClick={editingCategory ? handleUpdateCategory : handleCreateCategory}
+                              className="flex-1 py-3 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg font-bold hover:shadow-lg transition-all"
+                          >
+                            {editingCategory ? 'Update' : 'Create'}
+                          </button>
+                          <button
+                              onClick={() => {
+                                setShowCategoryForm(false);
+                                setEditingCategory(null);
+                                setCategoryForm({ name: '' });
+                              }}
+                              className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-400 transition-all"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                )}
+
+                {/* Categories List */}
+                <div className="space-y-3">
+                  {filteredCategories.length === 0 ? (
+                      <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+                        <p className="text-xl text-orange-600">
+                          {searchQuery ? `No categories found matching "${searchQuery}"` : 'No categories yet'}
+                        </p>
+                      </div>
+                  ) : (
+                      filteredCategories.map(category => (
+                          <div key={category.id} className="bg-white rounded-xl shadow-lg p-6 flex justify-between items-center">
+                            <div className="flex-1">
+                              <h4 className="text-xl font-bold" style={{ color: '#9a3412' }}>{category.name}</h4>
+                              <p className="text-orange-600">
+                                {(category.items || []).length} items
+                              </p>
+                            </div>
+                            <div className="flex space-x-3">
+                              <button
+                                  onClick={() => startEditCategory(category)}
+                                  className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                  onClick={() => handleDeleteCategory(category.id)}
+                                  className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
+                                  disabled={(category.items || []).length > 0}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                      )))}
                 </div>
-              ))}
-            </div>
-          </>
-        )}
+              </>
+          )}
+        </div>
       </div>
-    </div>
   );
 }
