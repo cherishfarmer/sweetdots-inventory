@@ -1,4 +1,4 @@
-# 🍩 Sweet Dots Café Inventory Management System
+# 🧋 Sweet Dots Café Inventory Management System
 
 A production-ready, full-stack inventory management web application designed specifically for café operations. Optimized for iPad use with large, touch-friendly buttons and a clean, modern interface.
 
@@ -213,7 +213,7 @@ git push -u origin main
 The app uses "Sweet Dots" branding with orange and white colors. To customize:
 
 1. **Colors**: Edit `tailwind.config.js` to change the color scheme
-2. **Logo**: Replace the 🍩 emoji in header components
+2. **Logo**: Replace the 🧋 emoji in header components
 3. **Name**: Search and replace "Sweet Dots" throughout the codebase
 
 ### Email Template

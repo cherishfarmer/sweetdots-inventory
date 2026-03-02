@@ -196,7 +196,7 @@ function generateEmailHTML(data: EmailData): string {
 <body>
   <div class="container">
     <div class="header">
-      <h1>🍩 Sweet Dots Inventory Report</h1>
+      <h1>🧋 Sweet Dots Inventory Report</h1>
       <p>${submissionType.charAt(0).toUpperCase() + submissionType.slice(1)} Shift • ${formattedDate}</p>
     </div>
 

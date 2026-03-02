@@ -1,4 +1,4 @@
-# 🍩 Sweet Dots Inventory System - Project Overview
+# 🧋 Sweet Dots Inventory System - Project Overview
 
 ## What You've Received
 
@@ -256,7 +256,7 @@ colors: {
 ```
 
 ### Change Logo
-Replace the 🍩 emoji in:
+Replace the 🧋 emoji in:
 - `app/page.tsx` (login page)
 - `app/inventory/page.tsx` (header)
 - `app/history/page.tsx` (header)

@@ -251,7 +251,7 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fff7ed' }}>
         <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">🍩</div>
+          <div className="animate-spin text-6xl mb-4">🧋</div>
           <p style={{ color: '#9a3412' }} className="text-lg">Loading...</p>
         </div>
       </div>

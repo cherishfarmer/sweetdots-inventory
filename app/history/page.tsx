@@ -119,7 +119,7 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fff7ed' }}>
         <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">🍩</div>
+          <div className="animate-spin text-6xl mb-4">🧋</div>
           <p style={{ color: '#9a3412' }} className="text-lg">Loading...</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default function HistoryPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <span className="text-4xl">🍩</span>
+              <span className="text-4xl">🧋</span>
               <div>
                 <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>
                   Sweet Dots
@@ -258,7 +258,7 @@ export default function HistoryPage() {
 
             {loadingDetail ? (
               <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-                <div className="animate-spin text-6xl mb-4">🍩</div>
+                <div className="animate-spin text-6xl mb-4">🧋</div>
                 <p style={{ color: '#9a3412' }} className="text-lg">Loading snapshot...</p>
               </div>
             ) : currentSubmission ? (

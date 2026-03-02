@@ -1,4 +1,4 @@
-# 🍩 Sweet Dots Inventory - Quick Reference
+# 🧋 Sweet Dots Inventory - Quick Reference
 
 ## 🚀 5-Minute Setup (Development)
 
@@ -171,7 +171,7 @@ npm run lint         # Run ESLint
 - Edit: `tailwind.config.js`
 
 **Change Logo:**
-- Replace 🍩 in all page headers
+- Replace 🧋 in all page headers
 
 **Email Template:**
 - Edit: `lib/email.ts`
