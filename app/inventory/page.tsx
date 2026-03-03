@@ -256,14 +256,14 @@ export default function InventoryPage() {
                     onClick={() => router.push('/history')}
                     className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                 >
-                  📊 History
+                  History
                 </button>
                 {user?.role === 'admin' && (
                     <button
                         onClick={() => router.push('/admin')}
                         className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                     >
-                      ⚙️ Admin
+                      Admin
                     </button>
                 )}
                 <button
@@ -282,7 +282,6 @@ export default function InventoryPage() {
           {showSuccess && (
               <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-6 rounded-lg shadow-lg fade-in">
                 <div className="flex items-center">
-                  <span className="text-4xl mr-4">✅</span>
                   <div>
                     <h3 className="text-xl font-bold text-green-800">Inventory Submitted Successfully!</h3>
                     <p className="text-green-700">Email report has been sent to management.</p>
@@ -303,7 +302,7 @@ export default function InventoryPage() {
                           : 'bg-orange-50 text-orange-600 border-2 border-orange-200'
                   }`}
               >
-                ☀️ Morning
+                Morning
               </button>
               <button
                   onClick={() => setSubmissionType('night')}
@@ -313,7 +312,7 @@ export default function InventoryPage() {
                           : 'bg-orange-50 text-orange-600 border-2 border-orange-200'
                   }`}
               >
-                🌙 Night
+                Night
               </button>
             </div>
           </div>
@@ -322,7 +321,7 @@ export default function InventoryPage() {
           {criticalItems.length > 0 && (
               <div className="bg-red-50 border-l-4 border-red-500 rounded-xl p-6 mb-6 shadow-lg pulse">
                 <h2 className="text-2xl font-bold text-red-700 mb-4 flex items-center">
-                  🚨 Critically Low Items ({criticalItems.length})
+                  Critically Low Items ({criticalItems.length})
                 </h2>
                 <div className="space-y-3">
                   {criticalItems.map(item => (
@@ -369,7 +368,7 @@ export default function InventoryPage() {
                   }}
                   className="px-6 py-4 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-semibold whitespace-nowrap"
               >
-                🔄 Reset Values
+                Reset Values
               </button>
             </div>
             {searchQuery && (
@@ -499,7 +498,7 @@ export default function InventoryPage() {
                       : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                 }}
             >
-              {submitting ? '📤 Submitting...' : '✅ Submit Inventory'}
+              {submitting ? 'Submitting...' : 'Submit Inventory'}
             </button>
           </div>
 

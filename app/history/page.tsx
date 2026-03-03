@@ -176,14 +176,14 @@ export default function HistoryPage() {
                     onClick={() => router.push('/inventory')}
                     className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                 >
-                  ✏️ Update
+                  Update
                 </button>
                 {user?.role === 'admin' && (
                     <button
                         onClick={() => router.push('/admin')}
                         className="px-6 py-3 bg-orange-800 text-white rounded-lg font-semibold hover:bg-orange-900"
                     >
-                      ⚙️ Admin
+                      Admin
                     </button>
                 )}
                 <button
@@ -219,7 +219,7 @@ export default function HistoryPage() {
                           : 'bg-orange-50 text-orange-600'
                   }`}
               >
-                ☀️ Morning
+                Morning
               </button>
               <button
                   onClick={() => setFilter('night')}
@@ -229,7 +229,7 @@ export default function HistoryPage() {
                           : 'bg-orange-50 text-orange-600'
                   }`}
               >
-                🌙 Night
+                Night
               </button>
             </div>
 
@@ -307,7 +307,7 @@ export default function HistoryPage() {
                           <div>
                             <p className="text-sm font-semibold text-orange-700 uppercase">Shift Type</p>
                             <p className="text-xl font-bold" style={{ color: '#9a3412' }}>
-                              {currentSubmission.submissionType === 'morning' ? '☀️ Morning' : '🌙 Night'}
+                              {currentSubmission.submissionType === 'morning' ? 'Morning' : 'Night'}
                             </p>
                           </div>
                           <div>
@@ -349,7 +349,7 @@ export default function HistoryPage() {
                       {criticalItems.length > 0 && (
                           <div className="bg-red-50 border-l-4 border-red-500 rounded-xl p-6 mb-6 shadow-lg">
                             <h2 className="text-2xl font-bold text-red-700 mb-4 flex items-center">
-                              🚨 Critical Items at Submission ({criticalItems.length})
+                              Critical Items at Submission ({criticalItems.length})
                             </h2>
                             <div className="space-y-3">
                               {criticalItems.map((item, idx) => (

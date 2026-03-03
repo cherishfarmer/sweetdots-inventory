@@ -439,13 +439,13 @@ export default function AdminPage() {
                     onClick={() => router.push('/inventory')}
                     className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                 >
-                  ✏️ Update
+                  Update
                 </button>
                 <button
                     onClick={() => router.push('/history')}
                     className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                 >
-                  📊 History
+                  History
                 </button>
                 <button
                     onClick={logout}
@@ -473,7 +473,7 @@ export default function AdminPage() {
                           : 'bg-orange-50 text-orange-600'
                   }`}
               >
-                📦 Manage Items
+                Manage Items
               </button>
               <button
                   onClick={() => {
@@ -486,7 +486,7 @@ export default function AdminPage() {
                           : 'bg-orange-50 text-orange-600'
                   }`}
               >
-                🏷️ Manage Categories
+                Manage Categories
               </button>
               <button
                   onClick={() => {
@@ -499,7 +499,7 @@ export default function AdminPage() {
                           : 'bg-orange-50 text-orange-600'
                   }`}
               >
-                👥 Manage Employees
+                Manage Employees
               </button>
             </div>
           </div>
@@ -903,7 +903,7 @@ export default function AdminPage() {
                             <option value="admin">Admin</option>
                           </select>
                           <p className="text-sm text-orange-600 mt-1">
-                            {userForm.role === 'admin' ? '⚠️ Admins have full access to manage everything' : '✓ Employees can update inventory and view history'}
+                            {userForm.role === 'admin' ? 'Admins have full access to manage everything' : 'Employees can update inventory and view history'}
                           </p>
                         </div>
 
@@ -948,7 +948,7 @@ export default function AdminPage() {
                                         ? 'bg-purple-100 text-purple-700'
                                         : 'bg-blue-100 text-blue-700'
                                 }`}>
-                          {employee.role === 'admin' ? '👑 Admin' : '👤 Employee'}
+                          {employee.role === 'admin' ? 'Admin' : 'Employee'}
                         </span>
                               </div>
                               <p className="text-orange-600">
