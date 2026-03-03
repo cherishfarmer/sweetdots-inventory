@@ -248,11 +248,11 @@ export default function InventoryPage() {
                   <h1 className="text-2xl font-bold text-white">
                     Sweet Dots
                   </h1>
-                  <p className="text-orange-100 text-sm">Admin Dashboard</p>
+                  <p className="text-orange-100 text-sm">Update Inventory</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-              <button
+                <button
                     onClick={() => router.push('/history')}
                     className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                 >
@@ -455,7 +455,7 @@ export default function InventoryPage() {
                     className="w-6 h-6 rounded"
                 />
                 <span className="text-lg font-semibold" style={{ color: '#9a3412' }}>
-                ☑️ Supplies received today
+                Supplies received today
               </span>
               </label>
               {suppliesReceived && (

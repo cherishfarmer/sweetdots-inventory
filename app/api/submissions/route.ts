@@ -10,17 +10,30 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type'); // morning, night, or all
+    const date = searchParams.get('date'); // optional date filter YYYY-MM-DD
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
-    let whereClause = '';
+    const whereClauses: string[] = [];
     const params: any[] = [limit, offset];
+    let paramIndex = 3;
 
     if (type && type !== 'all') {
-      whereClause = 'WHERE submission_type = $3';
+      whereClauses.push(`submission_type = $${paramIndex}`);
       params.push(type);
+      paramIndex++;
     }
+
+    if (date) {
+      whereClauses.push(`submission_date = $${paramIndex}`);
+      params.push(date);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.length > 0
+        ? 'WHERE ' + whereClauses.join(' AND ')
+        : '';
 
     const result = await query(
         `SELECT 
@@ -42,9 +55,10 @@ export async function GET(request: NextRequest) {
     );
 
     // Get total count
+    const countParams = params.slice(2); // Remove limit and offset
     const countResult = await query(
-        `SELECT COUNT(*) as total FROM inventory_submissions ${whereClause}`,
-        type && type !== 'all' ? [type] : []
+        `SELECT COUNT(*) as total FROM inventory_submissions s ${whereClause}`,
+        countParams
     );
 
     return NextResponse.json({
