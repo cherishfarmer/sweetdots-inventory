@@ -237,11 +237,11 @@ export default function InventoryPage() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="bg-orange-500 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="bg-orange-500 w-27 h-27 rounded-full flex items-center justify-center mx-auto">
                   <img
                       src="/sweetdotsfavicon-removebg-preview.png"
                       alt="Sweet Dots Logo"
-                      className="w-30 h-30 object-cover"
+                      className="w-24 h-24 object-cover"
                   />
                 </div>
                 <div>
@@ -252,7 +252,7 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <button
+              <button
                     onClick={() => router.push('/history')}
                     className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                 >
