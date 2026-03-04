@@ -126,26 +126,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 🔐 Default Login Credentials
-
-The database schema includes a default admin account:
-
-- **Email**: admin@sweetdots.com
-- **Password**: admin123
-
-**⚠️ IMPORTANT**: Change this password immediately in production!
-
-To change the password:
-1. Log in as admin
-2. Use a tool like pgAdmin or psql to update the password hash in the `users` table
-3. Or create a new admin user via SQL
-
 ## 📱 Usage Guide
 
 ### Employee Workflow
 
 1. **Login**: Enter credentials at the home page
-2. **Select Shift**: Choose Morning ☀️ or Night 🌙
+2. **Select Shift**: Choose Morning or Night
 3. **Update Counts**: 
    - Use +/- buttons for quick adjustments
    - Tap the number to enter directly
@@ -207,14 +193,6 @@ git push -u origin main
 4. Share the URL with your team
 
 ## 🔧 Customization
-
-### Branding
-
-The app uses "Sweet Dots" branding with orange and white colors. To customize:
-
-1. **Colors**: Edit `tailwind.config.js` to change the color scheme
-2. **Logo**: Replace the 🧋 emoji in header components
-3. **Name**: Search and replace "Sweet Dots" throughout the codebase
 
 ### Email Template
 
@@ -278,12 +256,8 @@ For issues or questions:
 
 ## 📝 License
 
-This project is proprietary software for Sweet Dots Café.
+This project is proprietary software for Sweet Dots.
 
 ## 🎉 Credits
 
 Built with modern web technologies for efficient café inventory management.
-
----
-
-**Made with ❤️ for Sweet Dots Café**
