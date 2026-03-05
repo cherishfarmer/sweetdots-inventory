@@ -166,7 +166,7 @@ export default function HistoryPage() {
                   <h1 className="text-2xl font-bold text-white">
                     Sweet Dots
                   </h1>
-                  <p className="text-orange-100 text-sm">Inventory History</p>
+                  <p className="text-orange-100 text-sm">Admin Dashboard</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -179,7 +179,7 @@ export default function HistoryPage() {
                 {user?.role === 'admin' && (
                     <button
                         onClick={() => router.push('/admin')}
-                        className="px-6 py-3 bg-orange-800 text-white rounded-lg font-semibold hover:bg-orange-900"
+                        className="px-6 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50"
                     >
                       Admin
                     </button>

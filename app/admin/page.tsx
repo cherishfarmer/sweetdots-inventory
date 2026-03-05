@@ -36,6 +36,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'items' | 'categories' | 'employees'>('items');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Form states
   const [showItemForm, setShowItemForm] = useState(false);
@@ -366,7 +367,7 @@ export default function AdminPage() {
     setUserForm({
       name: userToEdit.name,
       email: userToEdit.email,
-      password: '', // Don't prefill password
+      password: '',
       role: userToEdit.role,
     });
   };
@@ -390,7 +391,6 @@ export default function AdminPage() {
       }))
   );
 
-  // Filter items based on search query
   const filteredItems = searchQuery.trim()
       ? allItems.filter(item =>
           item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -398,14 +398,12 @@ export default function AdminPage() {
       )
       : allItems;
 
-  // Filter categories based on search query
   const filteredCategories = searchQuery.trim()
       ? categories.filter(cat =>
           cat.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
       : categories;
 
-  // Filter users based on search query
   const filteredUsers = searchQuery.trim()
       ? users.filter(u =>
           u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -420,11 +418,11 @@ export default function AdminPage() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="bg-orange-500 w-27 h-27 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-orange-500 w-16 h-16 rounded-full flex items-center justify-center">
                   <img
                       src="/sweetdotsfavicon-removebg-preview.png"
                       alt="Sweet Dots Logo"
-                      className="w-24 h-24 object-cover"
+                      className="w-12 h-12 object-contain"
                   />
                 </div>
                 <div>
@@ -465,7 +463,7 @@ export default function AdminPage() {
               <button
                   onClick={() => {
                     setActiveTab('items');
-                    setSearchQuery(''); // Clear search when switching
+                    setSearchQuery('');
                   }}
                   className={`py-4 rounded-xl font-bold text-lg transition-all ${
                       activeTab === 'items'
@@ -478,7 +476,7 @@ export default function AdminPage() {
               <button
                   onClick={() => {
                     setActiveTab('categories');
-                    setSearchQuery(''); // Clear search when switching
+                    setSearchQuery('');
                   }}
                   className={`py-4 rounded-xl font-bold text-lg transition-all ${
                       activeTab === 'categories'
@@ -491,7 +489,7 @@ export default function AdminPage() {
               <button
                   onClick={() => {
                     setActiveTab('employees');
-                    setSearchQuery(''); // Clear search when switching
+                    setSearchQuery('');
                   }}
                   className={`py-4 rounded-xl font-bold text-lg transition-all ${
                       activeTab === 'employees'
@@ -625,8 +623,8 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {/* Items List */}
-                <div className="space-y-3">
+                {/* Items List - Grouped by Category */}
+                <div className="space-y-4">
                   {filteredItems.length === 0 ? (
                       <div className="bg-white rounded-xl shadow-lg p-12 text-center">
                         <p className="text-xl text-orange-600">
@@ -634,30 +632,75 @@ export default function AdminPage() {
                         </p>
                       </div>
                   ) : (
-                      filteredItems.map(item => (
-                          <div key={item.id} className="bg-white rounded-xl shadow-lg p-6 flex justify-between items-center">
-                            <div className="flex-1">
-                              <h4 className="text-xl font-bold" style={{ color: '#9a3412' }}>{item.name}</h4>
-                              <p className="text-orange-600">
-                                {item.categoryName} • Par Level: {item.parLevel} • Current: {item.currentQuantity}
-                              </p>
-                            </div>
-                            <div className="flex space-x-3">
+                      Object.entries(
+                          filteredItems.reduce((acc, item) => {
+                            if (!acc[item.categoryName]) {
+                              acc[item.categoryName] = [];
+                            }
+                            acc[item.categoryName].push(item);
+                            return acc;
+                          }, {} as Record<string, typeof filteredItems>)
+                      ).map(([categoryName, categoryItems]) => {
+                        const isExpanded = expandedCategories.has(categoryName);
+                        return (
+                            <div key={categoryName} className="bg-white rounded-xl shadow-lg overflow-hidden">
                               <button
-                                  onClick={() => startEditItem(item)}
-                                  className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
+                                  onClick={() => {
+                                    const newSet = new Set(expandedCategories);
+                                    if (newSet.has(categoryName)) {
+                                      newSet.delete(categoryName);
+                                    } else {
+                                      newSet.add(categoryName);
+                                    }
+                                    setExpandedCategories(newSet);
+                                  }}
+                                  className="w-full px-6 py-4 flex justify-between items-center transition-colors hover:bg-orange-50"
+                                  style={{ backgroundColor: isExpanded ? '#f97316' : '#fff' }}
                               >
-                                Edit
+                                <h3 className={`text-xl font-bold ${isExpanded ? 'text-white' : 'text-orange-600'}`}>
+                                  {categoryName} ({categoryItems.length} items)
+                                </h3>
+                                <svg
+                                    className={`w-6 h-6 transition-transform ${isExpanded ? 'rotate-180 text-white' : 'text-orange-600'}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
                               </button>
-                              <button
-                                  onClick={() => handleDeleteItem(item.id)}
-                                  className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
-                              >
-                                Delete
-                              </button>
+
+                              {isExpanded && (
+                                  <div className="p-4 space-y-3">
+                                    {categoryItems.map(item => (
+                                        <div key={item.id} className="bg-orange-50 rounded-lg p-4 flex justify-between items-center border-2 border-orange-200">
+                                          <div className="flex-1">
+                                            <h4 className="text-lg font-bold" style={{ color: '#9a3412' }}>{item.name}</h4>
+                                            <p className="text-orange-600 text-sm">
+                                              Par Level: {item.parLevel} • Current: {item.currentQuantity}
+                                            </p>
+                                          </div>
+                                          <div className="flex space-x-3">
+                                            <button
+                                                onClick={() => startEditItem(item)}
+                                                className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600"
+                                            >
+                                              Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteItem(item.id)}
+                                                className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
+                                            >
+                                              Delete
+                                            </button>
+                                          </div>
+                                        </div>
+                                    ))}
+                                  </div>
+                              )}
                             </div>
-                          </div>
-                      ))
+                        );
+                      })
                   )}
                 </div>
               </>
@@ -666,7 +709,6 @@ export default function AdminPage() {
           {/* Categories Tab */}
           {activeTab === 'categories' && (
               <>
-                {/* Search Bar */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
                   <div className="relative">
                     <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -713,7 +755,6 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                {/* Category Form */}
                 {(showCategoryForm || editingCategory) && (
                     <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
                       <h3 className="text-2xl font-bold mb-4" style={{ color: '#9a3412' }}>
@@ -755,7 +796,6 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {/* Categories List */}
                 <div className="space-y-3">
                   {filteredCategories.length === 0 ? (
                       <div className="bg-white rounded-xl shadow-lg p-12 text-center">
@@ -788,7 +828,8 @@ export default function AdminPage() {
                               </button>
                             </div>
                           </div>
-                      )))}
+                      ))
+                  )}
                 </div>
               </>
           )}
@@ -796,7 +837,6 @@ export default function AdminPage() {
           {/* Employees Tab */}
           {activeTab === 'employees' && (
               <>
-                {/* Search Bar */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
                   <div className="relative">
                     <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -843,7 +883,6 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                {/* User Form */}
                 {(showUserForm || editingUser) && (
                     <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
                       <h3 className="text-2xl font-bold mb-4" style={{ color: '#9a3412' }}>
@@ -929,7 +968,6 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {/* Employees List */}
                 <div className="space-y-3">
                   {filteredUsers.length === 0 ? (
                       <div className="bg-white rounded-xl shadow-lg p-12 text-center">

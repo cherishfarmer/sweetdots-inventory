@@ -4,8 +4,8 @@ import { requireAdmin, hashPassword } from '@/lib/auth';
 
 // DELETE user
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
   try {
     requireAdmin(request);
@@ -13,36 +13,36 @@ export async function DELETE(
     const { id } = params;
 
     const result = await query(
-      'DELETE FROM users WHERE id = $1 RETURNING *',
-      [id]
+        'DELETE FROM users WHERE id = $1 RETURNING *',
+        [id]
     );
 
     if (result.rows.length === 0) {
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
+          { error: 'User not found' },
+          { status: 404 }
       );
     }
 
     return NextResponse.json({ message: 'User deleted successfully' });
   } catch (error: any) {
     console.error('Delete user error:', error);
-    
+
     if (error.message === 'Unauthorized' || error.message?.includes('Forbidden')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+        { error: 'Internal server error' },
+        { status: 500 }
     );
   }
 }
 
 // PUT update user
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
   try {
     requireAdmin(request);
@@ -73,8 +73,8 @@ export async function PUT(
     if (role) {
       if (!['employee', 'admin'].includes(role)) {
         return NextResponse.json(
-          { error: 'Invalid role' },
-          { status: 400 }
+            { error: 'Invalid role' },
+            { status: 400 }
         );
       }
       updates.push(`role = $${paramIndex++}`);
@@ -83,45 +83,45 @@ export async function PUT(
 
     if (updates.length === 0) {
       return NextResponse.json(
-        { error: 'No fields to update' },
-        { status: 400 }
+          { error: 'No fields to update' },
+          { status: 400 }
       );
     }
 
     values.push(id);
 
     const result = await query(
-      `UPDATE users SET ${updates.join(', ')} 
+        `UPDATE users SET ${updates.join(', ')} 
        WHERE id = $${paramIndex}
        RETURNING id, name, email, role, created_at as "createdAt"`,
-      values
+        values
     );
 
     if (result.rows.length === 0) {
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
+          { error: 'User not found' },
+          { status: 404 }
       );
     }
 
     return NextResponse.json({ user: result.rows[0] });
   } catch (error: any) {
     console.error('Update user error:', error);
-    
+
     if (error.message === 'Unauthorized' || error.message?.includes('Forbidden')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     if (error.code === '23505') {
       return NextResponse.json(
-        { error: 'Email already exists' },
-        { status: 409 }
+          { error: 'Email already exists' },
+          { status: 409 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+        { error: 'Internal server error' },
+        { status: 500 }
     );
   }
 }

@@ -32,6 +32,8 @@ export default function InventoryPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showCriticalItems, setShowCriticalItems] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -128,9 +130,10 @@ export default function InventoryPage() {
 
   const updateQuantity = (itemId: string, change: number) => {
     setQuantities(prev => {
+      const newValue = Math.max(0, (prev[itemId] || 0) + change);
       const updated = {
         ...prev,
-        [itemId]: Math.max(0, (prev[itemId] || 0) + change),
+        [itemId]: Math.round(newValue * 10) / 10, // Round to 1 decimal place
       };
       // Save to localStorage
       localStorage.setItem('inventoryQuantities', JSON.stringify(updated));
@@ -139,11 +142,11 @@ export default function InventoryPage() {
   };
 
   const setDirectQuantity = (itemId: string, value: string) => {
-    const num = parseInt(value) || 0;
+    const num = parseFloat(value) || 0;
     setQuantities(prev => {
       const updated = {
         ...prev,
-        [itemId]: Math.max(0, num),
+        [itemId]: Math.max(0, Math.round(num * 10) / 10), // Round to 1 decimal place
       };
       // Save to localStorage
       localStorage.setItem('inventoryQuantities', JSON.stringify(updated));
@@ -214,6 +217,26 @@ export default function InventoryPage() {
     }
   };
 
+  const toggleCategory = (categoryName: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryName)) {
+        newSet.delete(categoryName);
+      } else {
+        newSet.add(categoryName);
+      }
+      return newSet;
+    });
+  };
+
+  const expandAll = () => {
+    setExpandedCategories(new Set(filteredCategories.map(cat => cat.name)));
+  };
+
+  const collapseAll = () => {
+    setExpandedCategories(new Set());
+  };
+
   if (authLoading || loading) {
     return (
         <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fff7ed' }}>
@@ -235,18 +258,18 @@ export default function InventoryPage() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="bg-orange-500 w-27 h-27 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-orange-500 w-16 h-16 rounded-full flex items-center justify-center">
                   <img
                       src="/sweetdotsfavicon-removebg-preview.png"
                       alt="Sweet Dots Logo"
-                      className="w-24 h-24 object-cover"
+                      className="w-12 h-12 object-contain"
                   />
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white">
                     Sweet Dots
                   </h1>
-                  <p className="text-orange-100 text-sm">Update Inventory</p>
+                  <p className="text-orange-100 text-sm">Admin Dashboard</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -317,24 +340,39 @@ export default function InventoryPage() {
 
           {/* Critical Items */}
           {criticalItems.length > 0 && (
-              <div className="bg-red-50 border-l-4 border-red-500 rounded-xl p-6 mb-6 shadow-lg pulse">
-                <h2 className="text-2xl font-bold text-red-700 mb-4 flex items-center">
-                  Critically Low Items ({criticalItems.length})
-                </h2>
-                <div className="space-y-3">
-                  {criticalItems.map(item => (
-                      <div key={item.id} className="bg-white rounded-lg p-4 flex justify-between items-center">
-                        <div>
-                          <p className="font-bold text-red-700">{item.name}</p>
-                          <p className="text-sm text-red-600">{item.categoryName}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-red-700">{item.currentQuantity}</p>
-                          <p className="text-sm text-red-600">Need: {item.parLevel}</p>
-                        </div>
-                      </div>
-                  ))}
-                </div>
+              <div className="bg-red-50 border-l-4 border-red-500 rounded-xl shadow-lg overflow-hidden mb-6">
+                <button
+                    onClick={() => setShowCriticalItems(!showCriticalItems)}
+                    className="w-full px-6 py-4 flex justify-between items-center hover:bg-red-100 transition-colors"
+                >
+                  <h2 className="text-2xl font-bold text-red-700 flex items-center">
+                    Critically Low Items ({criticalItems.length})
+                  </h2>
+                  <svg
+                      className={`w-6 h-6 text-red-700 transition-transform ${showCriticalItems ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {showCriticalItems && (
+                    <div className="px-6 pb-6 space-y-3">
+                      {criticalItems.map(item => (
+                          <div key={item.id} className="bg-white rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                              <p className="font-bold text-red-700">{item.name}</p>
+                              <p className="text-sm text-red-600">{item.categoryName}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-red-700">{item.currentQuantity % 1 === 0 ? item.currentQuantity : item.currentQuantity.toFixed(1)}</p>
+                              <p className="text-sm text-red-600">Need: {item.parLevel % 1 === 0 ? item.parLevel : item.parLevel.toFixed(1)}</p>
+                            </div>
+                          </div>
+                      ))}
+                    </div>
+                )}
               </div>
           )}
 
@@ -374,68 +412,101 @@ export default function InventoryPage() {
                   Found {filteredCategories.reduce((acc, cat) => acc + cat.items.length, 0)} items
                 </p>
             )}
+            {/* Expand/Collapse All Buttons */}
+            <div className="flex gap-3 mt-4">
+              <button
+                  onClick={expandAll}
+                  className="flex-1 px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-semibold text-sm"
+              >
+                ▼ Expand All
+              </button>
+              <button
+                  onClick={collapseAll}
+                  className="flex-1 px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-semibold text-sm"
+              >
+                ▶ Collapse All
+              </button>
+            </div>
           </div>
 
           {/* Inventory by Category */}
           <div className="space-y-6">
-            {filteredCategories.map(category => (
-                <div key={category.name} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                  <div className="px-6 py-4" style={{ backgroundColor: '#f97316' }}>
-                    <h3 className="text-xl font-bold text-white">
-                      {category.name} ({category.items.length} items)
-                    </h3>
+            {filteredCategories.map(category => {
+              const isExpanded = expandedCategories.has(category.name);
+              return (
+                  <div key={category.name} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <button
+                        onClick={() => toggleCategory(category.name)}
+                        className="w-full px-6 py-4 flex justify-between items-center transition-colors hover:bg-orange-50"
+                        style={{ backgroundColor: isExpanded ? '#f97316' : '#fff' }}
+                    >
+                      <h3 className={`text-xl font-bold ${isExpanded ? 'text-white' : 'text-orange-600'}`}>
+                        {category.name} ({category.items.length} items)
+                      </h3>
+                      <svg
+                          className={`w-6 h-6 transition-transform ${isExpanded ? 'rotate-180 text-white' : 'text-orange-600'}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {isExpanded && (
+                        <div className="p-6 space-y-4">
+                          {category.items.map(item => {
+                            const isCritical = quantities[item.id] < item.parLevel;
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={`p-4 rounded-xl border-2 ${
+                                        isCritical ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200'
+                                    }`}
+                                >
+                                  <div className="flex justify-between items-center mb-3">
+                                    <div className="flex-1">
+                                      <h4 className={`font-bold text-lg ${isCritical ? 'text-red-700' : 'text-orange-900'}`}>
+                                        {item.name}
+                                      </h4>
+                                      <p className={`text-sm ${isCritical ? 'text-red-600' : 'text-orange-600'}`}>
+                                        Par Level: {item.parLevel % 1 === 0 ? item.parLevel : item.parLevel.toFixed(1)}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center space-x-3">
+                                    <button
+                                        onClick={() => updateQuantity(item.id, -0.5)}
+                                        className="w-16 h-16 rounded-xl bg-orange-500 text-white text-3xl font-bold hover:bg-orange-600 active:scale-95 shadow-lg"
+                                    >
+                                      −
+                                    </button>
+
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={quantities[item.id] || 0}
+                                        onChange={(e) => setDirectQuantity(item.id, e.target.value)}
+                                        className="flex-1 text-center text-3xl font-bold py-4 rounded-xl border-2 border-orange-300 bg-white"
+                                        style={{ color: '#9a3412' }}
+                                    />
+
+                                    <button
+                                        onClick={() => updateQuantity(item.id, 0.5)}
+                                        className="w-16 h-16 rounded-xl bg-orange-500 text-white text-3xl font-bold hover:bg-orange-600 active:scale-95 shadow-lg"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                            );
+                          })}
+                        </div>
+                    )}
                   </div>
-
-                  <div className="p-6 space-y-4">
-                    {category.items.map(item => {
-                      const isCritical = quantities[item.id] < item.parLevel;
-                      return (
-                          <div
-                              key={item.id}
-                              className={`p-4 rounded-xl border-2 ${
-                                  isCritical ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200'
-                              }`}
-                          >
-                            <div className="flex justify-between items-center mb-3">
-                              <div className="flex-1">
-                                <h4 className={`font-bold text-lg ${isCritical ? 'text-red-700' : 'text-orange-900'}`}>
-                                  {item.name}
-                                </h4>
-                                <p className={`text-sm ${isCritical ? 'text-red-600' : 'text-orange-600'}`}>
-                                  Par Level: {item.parLevel}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center space-x-3">
-                              <button
-                                  onClick={() => updateQuantity(item.id, -1)}
-                                  className="w-16 h-16 rounded-xl bg-orange-500 text-white text-3xl font-bold hover:bg-orange-600 active:scale-95 shadow-lg"
-                              >
-                                −
-                              </button>
-
-                              <input
-                                  type="number"
-                                  value={quantities[item.id] || 0}
-                                  onChange={(e) => setDirectQuantity(item.id, e.target.value)}
-                                  className="flex-1 text-center text-3xl font-bold py-4 rounded-xl border-2 border-orange-300 bg-white"
-                                  style={{ color: '#9a3412' }}
-                              />
-
-                              <button
-                                  onClick={() => updateQuantity(item.id, 1)}
-                                  className="w-16 h-16 rounded-xl bg-orange-500 text-white text-3xl font-bold hover:bg-orange-600 active:scale-95 shadow-lg"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                      );
-                    })}
-                  </div>
-                </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Submission Section - NOW AT BOTTOM */}
