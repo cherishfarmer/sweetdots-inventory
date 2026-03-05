@@ -21,7 +21,6 @@ interface Category {
 export default function InventoryPage() {
   const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
-
   const [categories, setCategories] = useState<Category[]>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [submissionType, setSubmissionType] = useState<'morning' | 'night' | ''>('');
@@ -54,7 +53,6 @@ export default function InventoryPage() {
 
       if (response.ok) {
         const data = await response.json();
-
         // Transform data
         const transformed: Category[] = data.categories.map((cat: any) => ({
           name: cat.name,

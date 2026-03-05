@@ -34,6 +34,8 @@ export default function HistoryPage() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showCriticalItems, setShowCriticalItems] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -48,7 +50,6 @@ export default function HistoryPage() {
       setLoading(true);
       const token = localStorage.getItem('token');
 
-      // Build query params
       let url = `/api/submissions?type=${filter}&limit=100`;
       if (selectedDate) {
         url += `&date=${selectedDate}`;
@@ -65,7 +66,6 @@ export default function HistoryPage() {
         setSubmissions(data.submissions);
         setCurrentIndex(0);
 
-        // Load first submission details
         if (data.submissions.length > 0) {
           loadSubmissionDetail(data.submissions[0].id);
         }
@@ -90,7 +90,6 @@ export default function HistoryPage() {
       if (response.ok) {
         const data = await response.json();
 
-        // Update the submission with snapshots
         setSubmissions(prev => prev.map(sub =>
             sub.id === submissionId
                 ? { ...sub, snapshots: data.snapshots }
@@ -137,7 +136,6 @@ export default function HistoryPage() {
 
   const currentSubmission = submissions[currentIndex];
 
-  // Group snapshots by category
   const snapshotsByCategory: Record<string, Snapshot[]> = {};
   if (currentSubmission?.snapshots) {
     currentSubmission.snapshots.forEach(snapshot => {
@@ -157,11 +155,11 @@ export default function HistoryPage() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="bg-orange-500 w-27 h-27 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-orange-500 w-16 h-16 rounded-full flex items-center justify-center">
                   <img
                       src="/sweetdotsfavicon-removebg-preview.png"
                       alt="Sweet Dots Logo"
-                      className="w-24 h-24 object-cover"
+                      className="w-12 h-12 object-contain"
                   />
                 </div>
                 <div>
@@ -325,7 +323,7 @@ export default function HistoryPage() {
                           <div>
                             <p className="text-sm font-semibold text-orange-700 uppercase">Supplies</p>
                             <p className="text-xl font-bold" style={{ color: '#9a3412' }}>
-                              {currentSubmission.suppliesReceived ? '✓ Yes' : '✗ No'}
+                              {currentSubmission.suppliesReceived ? 'Yes' : 'No'}
                             </p>
                           </div>
                         </div>
@@ -345,68 +343,108 @@ export default function HistoryPage() {
                         )}
                       </div>
 
-                      {/* Critical Items */}
+                      {/* Critical Items - Collapsible */}
                       {criticalItems.length > 0 && (
-                          <div className="bg-red-50 border-l-4 border-red-500 rounded-xl p-6 mb-6 shadow-lg">
-                            <h2 className="text-2xl font-bold text-red-700 mb-4 flex items-center">
-                              Critical Items at Submission ({criticalItems.length})
-                            </h2>
-                            <div className="space-y-3">
-                              {criticalItems.map((item, idx) => (
-                                  <div key={idx} className="bg-white rounded-lg p-4 flex justify-between items-center">
-                                    <div>
-                                      <p className="font-bold text-red-700">{item.itemName}</p>
-                                      <p className="text-sm text-red-600">{item.categoryName}</p>
-                                    </div>
-                                    <div className="text-right">
-                                      <p className="text-2xl font-bold text-red-700">{item.quantity}</p>
-                                      <p className="text-sm text-red-600">Need: {item.parLevel}</p>
-                                    </div>
-                                  </div>
-                              ))}
-                            </div>
+                          <div className="bg-red-50 border-l-4 border-red-500 rounded-xl shadow-lg overflow-hidden mb-6">
+                            <button
+                                onClick={() => setShowCriticalItems(!showCriticalItems)}
+                                className="w-full px-6 py-4 flex justify-between items-center hover:bg-red-100 transition-colors"
+                            >
+                              <h2 className="text-2xl font-bold text-red-700">
+                                Critical Items at Submission ({criticalItems.length})
+                              </h2>
+                              <svg
+                                  className={`w-6 h-6 text-red-700 transition-transform ${showCriticalItems ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            {showCriticalItems && (
+                                <div className="px-6 pb-6 space-y-3">
+                                  {criticalItems.map((item, idx) => (
+                                      <div key={idx} className="bg-white rounded-lg p-4 flex justify-between items-center">
+                                        <div>
+                                          <p className="font-bold text-red-700">{item.itemName}</p>
+                                          <p className="text-sm text-red-600">{item.categoryName}</p>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="text-2xl font-bold text-red-700">{item.quantity}</p>
+                                          <p className="text-sm text-red-600">Need: {item.parLevel}</p>
+                                        </div>
+                                      </div>
+                                  ))}
+                                </div>
+                            )}
                           </div>
                       )}
 
-                      {/* Inventory Snapshot by Category */}
+                      {/* Inventory Snapshot by Category - Collapsible */}
                       <div className="space-y-4">
-                        {Object.entries(snapshotsByCategory).map(([categoryName, items]) => (
-                            <div key={categoryName} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                              <div className="px-6 py-4" style={{ backgroundColor: '#f97316' }}>
-                                <h3 className="text-xl font-bold text-white">
-                                  {categoryName} ({items.length})
-                                </h3>
-                              </div>
+                        {Object.entries(snapshotsByCategory).map(([categoryName, items]) => {
+                          const isExpanded = expandedCategories.has(categoryName);
+                          return (
+                              <div key={categoryName} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                                <button
+                                    onClick={() => {
+                                      const newSet = new Set(expandedCategories);
+                                      if (newSet.has(categoryName)) {
+                                        newSet.delete(categoryName);
+                                      } else {
+                                        newSet.add(categoryName);
+                                      }
+                                      setExpandedCategories(newSet);
+                                    }}
+                                    className="w-full px-6 py-4 flex justify-between items-center transition-colors hover:bg-orange-50"
+                                    style={{ backgroundColor: isExpanded ? '#f97316' : '#fff' }}
+                                >
+                                  <h3 className={`text-xl font-bold ${isExpanded ? 'text-white' : 'text-orange-600'}`}>
+                                    {categoryName} ({items.length} items)
+                                  </h3>
+                                  <svg
+                                      className={`w-6 h-6 transition-transform ${isExpanded ? 'rotate-180 text-white' : 'text-orange-600'}`}
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
 
-                              <div className="p-6 space-y-3">
-                                {items.map((item, idx) => {
-                                  const isCritical = item.quantity < item.parLevel;
-                                  return (
-                                      <div
-                                          key={idx}
-                                          className={`p-4 rounded-xl flex justify-between items-center ${
-                                              isCritical ? 'bg-red-50 border-2 border-red-300' : 'bg-orange-50'
-                                          }`}
-                                      >
-                                        <div className="flex-1">
-                                          <p className={`font-bold text-lg ${isCritical ? 'text-red-700' : 'text-orange-900'}`}>
-                                            {item.itemName}
-                                          </p>
-                                          <p className={`text-sm ${isCritical ? 'text-red-600' : 'text-orange-600'}`}>
-                                            Par: {item.parLevel}
-                                          </p>
-                                        </div>
-                                        <div className="text-right">
-                                          <p className={`text-3xl font-bold ${isCritical ? 'text-red-700' : 'text-orange-700'}`}>
-                                            {item.quantity}
-                                          </p>
-                                        </div>
-                                      </div>
-                                  );
-                                })}
+                                {isExpanded && (
+                                    <div className="p-6 space-y-3">
+                                      {items.map((item, idx) => {
+                                        const isCritical = item.quantity < item.parLevel;
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className={`p-4 rounded-xl flex justify-between items-center ${
+                                                    isCritical ? 'bg-red-50 border-2 border-red-300' : 'bg-orange-50'
+                                                }`}
+                                            >
+                                              <div className="flex-1">
+                                                <p className={`font-bold text-lg ${isCritical ? 'text-red-700' : 'text-orange-900'}`}>
+                                                  {item.itemName}
+                                                </p>
+                                                <p className={`text-sm ${isCritical ? 'text-red-600' : 'text-orange-600'}`}>
+                                                  Par: {item.parLevel}
+                                                </p>
+                                              </div>
+                                              <div className="text-right">
+                                                <p className={`text-3xl font-bold ${isCritical ? 'text-red-700' : 'text-orange-700'}`}>
+                                                  {item.quantity}
+                                                </p>
+                                              </div>
+                                            </div>
+                                        );
+                                      })}
+                                    </div>
+                                )}
                               </div>
-                            </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </>
                 ) : null}
